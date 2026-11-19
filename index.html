@@ -82,6 +82,8 @@
             <option value="10-20">10-20</option>
             <option value="20-50">20-50</option>
             <option value="50+">50+</option>
+         <select id="brandFilter" onchange="applyFilters()">
+    <option value="">品牌(全部)</option>   
         </select>
 
         
@@ -229,6 +231,7 @@ card.innerHTML = `
         const max = parseFloat(document.getElementById('maxPrice').value) || Infinity;
         const priceRange = document.getElementById('priceRangeFilter').value;
         const priceLevel = document.getElementById('modelCountFilter').value;
+        const brand = document.getElementById('brandFilter').value;
 
         let minRange = 0, maxRange = Infinity;
         if (priceRange) {
@@ -257,6 +260,7 @@ card.innerHTML = `
                    (!p || i.judge === p) && 
                    (!dateFilter || i.date === dateFilter) && // 新增：更新时间筛选
                    (!tag || i.specialTag === tag) && 
+                (!brand || i.brand === brand) &&  // 新增：品牌筛选
                    (i.price >= min && i.price <= max) && 
                    isInPriceRange && isMatchPriceLevel;
         });
