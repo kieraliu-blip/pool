@@ -147,25 +147,26 @@
         if (match) { window.open(match[0], '_blank'); } else { alert('❌ 链接格式无法识别'); }
     }
 
-    const mapData = (arr) => {
-        return {
-            title: arr[0],
-            variant: arr[1],
-            price: parseFloat(arr[2]) || 0,
-            imgUrl: arr[3],
-            link: arr[4],
-            l1: arr[5],
-            l2: arr[6],
-            l3: arr[16] || "", // 新增：四级类目
-            inviteId: cleanId(arr[7]),
-            modelId: cleanId(arr[8]), 
-            link1688: arr[9],
-            judge: arr[10],
-            date: arr[11],
-            specialTag: arr[14] || "",
-            modelCount: arr[15] || ""
-        };
+   const mapData = (arr) => {
+    return {
+        title: arr[0],
+        brand: arr[1],       // 新增：品牌名称
+        variant: arr[2],
+        price: parseFloat(arr[3]) || 0,
+        imgUrl: arr[4],
+        link: arr[5],
+        l1: arr[6],
+        l2: arr[7],
+        l3: arr[17] || "",
+        inviteId: cleanId(arr[8]),
+        modelId: cleanId(arr[9]),
+        link1688: arr[10],
+        judge: arr[11],
+        date: arr[12],
+        specialTag: arr[15] || "",
+        modelCount: arr[16] || ""
     };
+};
 
     function render(dataList, page = 1) {
         currentPage = page;
