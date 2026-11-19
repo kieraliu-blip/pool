@@ -152,13 +152,14 @@
         if (match) { window.open(match[0], '_blank'); } else { alert('❌ 链接格式无法识别'); }
     }
 
-    function initBrandFilter() {
+ function initBrandFilter() {
     const select = document.getElementById('brandFilter');
+
     const brands = [...new Set(
-        products.map(p => p[1]?.trim()).filter(v => v)
+        products.map(p => (p[17] || "").trim()).filter(v => v)
     )].sort();
 
-    select.innerHTML = '<option value="">品牌(全部)</option>';
+    select.innerHTML = '<option value="">品牌名称(全部)</option>';
 
     brands.forEach(brand => {
         const option = document.createElement('option');
@@ -171,21 +172,23 @@
   const mapData = (arr) => {
     return {
         title: arr[0],
-        brand: arr[1],
-        variant: arr[2],
-        price: parseFloat(arr[3]) || 0,
-        imgUrl: arr[4],
-        link: arr[5],
-        l1: arr[6],
-        l2: arr[7],
-        l3: arr[17] || "",
-        inviteId: cleanId(arr[8]),
-        modelId: cleanId(arr[9]),
-        link1688: arr[10],
-        judge: arr[11],
-        date: arr[12],
-        specialTag: arr[15] || "",
-        modelCount: arr[16] || ""
+        variant: arr[1],
+        price: parseFloat(arr[2]) || 0,
+        imgUrl: arr[3],
+        link: arr[4],
+        l1: arr[5],
+        l2: arr[6],
+        l3: arr[16] || "",
+        inviteId: cleanId(arr[7]),
+        modelId: cleanId(arr[8]),
+        link1688: arr[9],
+        judge: arr[10],
+        date: arr[11],
+        itemId: arr[12],
+        maxPrice: arr[13],
+        specialTag: arr[14] || "",
+        modelCount: arr[15] || "",
+        brand: (arr[17] || "").trim()
     };
 };
 
@@ -289,9 +292,9 @@ card.innerHTML = `
         
         const sort = document.getElementById('sortOrder').value;
         if (sort === 'priceAsc') {
-    filteredData.sort((a,b) => (parseFloat(a[3]) || 0) - (parseFloat(b[3]) || 0));
+    filteredData.sort((a,b) => (parseFloat(a[2]) || 0) - (parseFloat(b[2]) || 0));
 } else if (sort === 'priceDesc') {
-    filteredData.sort((a,b) => (parseFloat(b[3]) || 0) - (parseFloat(a[3]) || 0));
+    filteredData.sort((a,b) => (parseFloat(b[2]) || 0) - (parseFloat(a[2]) || 0));
 }
         
         document.getElementById('countDisplay').innerText = `已筛选：${filteredData.length} 款`;
@@ -319,23 +322,23 @@ card.innerHTML = `
     }
 
     function initFilters() {
-        // 初始化二级类目
-    [...new Set(products.map(p => p[6]))].forEach(v => {
+    // 初始化二级类目：F列
+    [...new Set(products.map(p => p[5]))].forEach(v => {
         if(v) document.getElementById('l1Filter').innerHTML += `<option value="${v}">${v}</option>`;
     });
 
-    // 初始化更新时间
-    [...new Set(products.map(p => p[12]?.trim()).filter(v => v))].forEach(v => {
+    // 初始化更新时间：L列
+    [...new Set(products.map(p => p[11]?.trim()).filter(v => v))].forEach(v => {
         document.getElementById('dateFilter').innerHTML += `<option value="${v}">${v}</option>`;
     });
 
-    // 初始化同款要求
-    [...new Set(products.map(p => p[15]?.trim()).filter(v => v))].forEach(v => {
+    // 初始化同款要求：O列
+    [...new Set(products.map(p => p[14]?.trim()).filter(v => v))].forEach(v => {
         document.getElementById('tagFilter').innerHTML += `<option value="${v}">${v}</option>`;
     });
 
-    // 初始化待定筛选框
-    [...new Set(products.map(p => p[16]?.trim()).filter(v => v))].forEach(v => {
+    // 初始化待定筛选框：P列
+    [...new Set(products.map(p => p[15]?.trim()).filter(v => v))].forEach(v => {
         document.getElementById('modelCountFilter').innerHTML += `<option value="${v}">${v}</option>`;
     });
 }
@@ -344,14 +347,14 @@ card.innerHTML = `
     function initL2Filter() {
         const s = document.getElementById('l2Filter'); 
         s.innerHTML = '<option value="">三级类目(全部)</option>'; 
-        [...new Set(products.map(p => p[7]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
+        [...new Set(products.map(p => p[6]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
     }
 
     // 【修改】初始化所有四级类目（不依赖二级/三级选中）
     function initL3Filter() {
         const s = document.getElementById('l3Filter'); 
         s.innerHTML = '<option value="">四级类目(全部)</option>'; 
-        [...new Set(products.map(p => p[17]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
+        [...new Set(products.map(p => p[16]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
     }
 
     // 【修改】三级类目联动逻辑：选中二级时过滤，未选中时显示全部
@@ -360,8 +363,8 @@ card.innerHTML = `
         const s = document.getElementById('l2Filter'); 
         s.innerHTML = '<option value="">三级类目(全部)</option>'; 
         // 如果选中了二级类目，过滤三级；否则显示所有三级
-        const list = l1 ? products.filter(p => p[6] === l1) : products;
-        [...new Set(list.map(p => p[7]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
+        const list = l1 ? products.filter(p => p[5] === l1) : products;
+        [...new Set(list.map(p => p[6]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
         updateL3();
     }
 
@@ -374,8 +377,8 @@ card.innerHTML = `
         
         let list = products;
         // 有二级选二级，有三级选三级，都没有显示全部
-        if(l1) list = list.filter(p => p[6] === l1);
-        if(l2) list = list.filter(p => p[7] === l2);
+        if(l1) list = list.filter(p => p[5] === l1);
+        if(l2) list = list.filter(p => p[6] === l2);
         
         [...new Set(list.map(p => p[17]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
     }
