@@ -82,7 +82,10 @@
             <option value="10-20">10-20</option>
             <option value="20-50">20-50</option>
             <option value="50+">50+</option>
-         <select id="brandFilter" onchange="applyFilters()"><option value="">品牌名称(全部)</option>   
+            </select>
+        <!-- 品牌筛选器 -->
+<select id="brandFilter" onchange="applyFilters()">
+    <option value="">品牌(全部)</option>
         </select>
 
         
@@ -149,10 +152,26 @@
         if (match) { window.open(match[0], '_blank'); } else { alert('❌ 链接格式无法识别'); }
     }
 
-   const mapData = (arr) => {
+    function initBrandFilter() {
+    const select = document.getElementById('brandFilter');
+    const brands = [...new Set(
+        products.map(p => p[1]?.trim()).filter(v => v)
+    )].sort();
+
+    select.innerHTML = '<option value="">品牌(全部)</option>';
+
+    brands.forEach(brand => {
+        const option = document.createElement('option');
+        option.value = brand;
+        option.textContent = brand;
+        select.appendChild(option);
+    });
+}
+    
+  const mapData = (arr) => {
     return {
         title: arr[0],
-        brand: arr[1],       // 新增：品牌名称
+        brand: arr[1],
         variant: arr[2],
         price: parseFloat(arr[3]) || 0,
         imgUrl: arr[4],
@@ -269,8 +288,11 @@ card.innerHTML = `
         });
         
         const sort = document.getElementById('sortOrder').value;
-        if (sort === 'priceAsc') filteredData.sort((a,b) => a[2] - b[2]);
-        else if (sort === 'priceDesc') filteredData.sort((a,b) => b[2] - a[2]);
+        if (sort === 'priceAsc') {
+    filteredData.sort((a,b) => (parseFloat(a[3]) || 0) - (parseFloat(b[3]) || 0));
+} else if (sort === 'priceDesc') {
+    filteredData.sort((a,b) => (parseFloat(b[3]) || 0) - (parseFloat(a[3]) || 0));
+}
         
         document.getElementById('countDisplay').innerText = `已筛选：${filteredData.length} 款`;
         render(filteredData, 1);
@@ -285,6 +307,7 @@ card.innerHTML = `
         document.getElementById('dateFilter').value = ''; // 新增：重置更新时间
         document.getElementById('tagFilter').value = '';
         document.getElementById('priceRangeFilter').value = '';
+        document.getElementById('brandFilter').value = '';
         document.getElementById('modelCountFilter').value = '';
         document.getElementById('minPrice').value = '';
         document.getElementById('maxPrice').value = '';
@@ -297,33 +320,38 @@ card.innerHTML = `
 
     function initFilters() {
         // 初始化二级类目
-        [...new Set(products.map(p => p[5]))].forEach(v => { if(v) document.getElementById('l1Filter').innerHTML += `<option value="${v}">${v}</option>`; });
-        
-        // 👇 【新增】自动加载 CSV 里的 arr[11] 到更新时间筛选器
-        [...new Set(products.map(p => p[11]?.trim()).filter(v => v))].forEach(v => {
-            document.getElementById('dateFilter').innerHTML += `<option value="${v}">${v}</option>`;
-        });
+    [...new Set(products.map(p => p[6]))].forEach(v => {
+        if(v) document.getElementById('l1Filter').innerHTML += `<option value="${v}">${v}</option>`;
+    });
 
-        // 初始化价格档位筛选
-        [...new Set(products.map(p => p[14]?.trim()).filter(v => v))].forEach(v => { document.getElementById('tagFilter').innerHTML += `<option value="${v}">${v}</option>`; });
-        // 初始化待定筛选框
-        [...new Set(products.map(p => p[15]?.trim()).filter(v => v))].forEach(v => { 
-            document.getElementById('modelCountFilter').innerHTML += `<option value="${v}">${v}</option>`; 
-        });
-    }
+    // 初始化更新时间
+    [...new Set(products.map(p => p[12]?.trim()).filter(v => v))].forEach(v => {
+        document.getElementById('dateFilter').innerHTML += `<option value="${v}">${v}</option>`;
+    });
+
+    // 初始化同款要求
+    [...new Set(products.map(p => p[15]?.trim()).filter(v => v))].forEach(v => {
+        document.getElementById('tagFilter').innerHTML += `<option value="${v}">${v}</option>`;
+    });
+
+    // 初始化待定筛选框
+    [...new Set(products.map(p => p[16]?.trim()).filter(v => v))].forEach(v => {
+        document.getElementById('modelCountFilter').innerHTML += `<option value="${v}">${v}</option>`;
+    });
+}
 
     // 【修改】初始化所有三级类目（不依赖二级选中）
     function initL2Filter() {
         const s = document.getElementById('l2Filter'); 
         s.innerHTML = '<option value="">三级类目(全部)</option>'; 
-        [...new Set(products.map(p => p[6]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
+        [...new Set(products.map(p => p[7]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
     }
 
     // 【修改】初始化所有四级类目（不依赖二级/三级选中）
     function initL3Filter() {
         const s = document.getElementById('l3Filter'); 
         s.innerHTML = '<option value="">四级类目(全部)</option>'; 
-        [...new Set(products.map(p => p[16]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
+        [...new Set(products.map(p => p[17]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
     }
 
     // 【修改】三级类目联动逻辑：选中二级时过滤，未选中时显示全部
@@ -332,8 +360,8 @@ card.innerHTML = `
         const s = document.getElementById('l2Filter'); 
         s.innerHTML = '<option value="">三级类目(全部)</option>'; 
         // 如果选中了二级类目，过滤三级；否则显示所有三级
-        const list = l1 ? products.filter(p => p[5] === l1) : products;
-        [...new Set(list.map(p => p[6]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
+        const list = l1 ? products.filter(p => p[6] === l1) : products;
+        [...new Set(list.map(p => p[7]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
         updateL3();
     }
 
@@ -346,10 +374,10 @@ card.innerHTML = `
         
         let list = products;
         // 有二级选二级，有三级选三级，都没有显示全部
-        if(l1) list = list.filter(p => p[5] === l1);
-        if(l2) list = list.filter(p => p[6] === l2);
+        if(l1) list = list.filter(p => p[6] === l1);
+        if(l2) list = list.filter(p => p[7] === l2);
         
-        [...new Set(list.map(p => p[16]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
+        [...new Set(list.map(p => p[17]))].forEach(v => { if(v) s.innerHTML += `<option value="${v}">${v}</option>`; }); 
     }
     
     let timer; 
