@@ -134,7 +134,7 @@
                 for (let c of line) { if (c === '"') q = !q; else if (c === ',' && !q) { r.push(cur.trim()); cur = ''; } else cur += c; }
                 r.push(cur.trim()); r.push(index);
                 return r;
-            }).filter(a => a.length >= 12);
+            }).filter(a => a.length >= 18);
             initFilters();
 
         // 新增：初始化品牌筛选器
